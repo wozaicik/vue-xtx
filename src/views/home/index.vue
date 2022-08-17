@@ -9,3 +9,7 @@ export default {
   name: 'HomePage'
 }
 </script>
+
+<style lang="less" scoped>
+
+</style>
