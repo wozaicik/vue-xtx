@@ -49,3 +49,16 @@ instance.interceptors.response.use(res => res.data, err => {
   }
   return Promise.reject(err)
 })
+
+export default (url, method, submitData) => {
+  // 负责发请求
+  // 请求地址 请求方式  提交的数据
+  return instance({
+    url,
+    method,
+    // 1.如果是get请求 需要使用params来传递submitdata   ?a=10&c=10
+    // 2.如果不是get请求 需要使用data来传递submitdata   请求体传参
+    // method参数：get Get GET  转换成小写在判断
+    [method.toLowerCase() === 'get' ? 'params' : 'data']: submitData
+  })
+}
