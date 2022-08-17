@@ -1,3 +1,4 @@
 <template>
-  <div>app</div>
+<!-- 一级路由 -->
+  <RouterView/>
 </template>
