@@ -8,6 +8,11 @@
                 {{sub.name}}
             </RouterLink>
         </template>
+        <template v-else>
+          <!-- 骨架 -->
+          <xtx-skeleton width="60px" height="18px" bg="rgba(255,255,255,0.2)" style="margin-right:5px"/>
+          <xtx-skeleton witdh="50px" height="18px" bg="rgba(255,255,255,0.2)"/>
+        </template>
       </li>
     </ul>
     <!-- 弹层 -->
@@ -204,6 +209,17 @@ export default {
     .layer {
       display: block;
     }
+  }
+}
+.xtx-skeleton {
+  animation: fade 1s linear infinite alternate;
+}
+@keyframes fade {
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 1;
   }
 }
 </style>
