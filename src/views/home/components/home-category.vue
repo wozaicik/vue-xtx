@@ -1,7 +1,7 @@
 <template>
-  <div class='home-category'>
+  <div class='home-category' @mouseleave="categoryId=null">
     <ul class="menu">
-      <li v-for="item in menList" :key="item.id" @mouseenter="categoryId=item.id">
+      <li :class="{active:categoryId===item.id}" v-for="item in menList" :key="item.id" @mouseenter="categoryId=item.id">
         <RouterLink :to="`/category/${item.id}`">{{item.name}}</RouterLink>
         <template v-if="item.children">
             <RouterLink v-for="sub in item.children" :key="sub.id" :to="`/category/sub/${sub.id}`">
@@ -12,7 +12,8 @@
     </ul>
     <!-- 弹层 -->
     <div class="layer">
-      <h4>分类推荐 <small>根据您的购买或浏览记录推荐</small></h4>
+      <h4>{{ currenCategory && currenCategory.id ==='brand'?'品牌':'分类'}}推荐 <small>根据您的购买或浏览记录推荐</small></h4>
+      <!-- 商品 -->
       <ul v-if=" currenCategory && currenCategory.goods ">
         <li v-for="item in currenCategory.goods" :key="item.id">
           <RouterLink to="/">
@@ -25,11 +26,25 @@
           </RouterLink>
         </li>
       </ul>
+      <!-- 品牌 -->
+      <ul v-if=" currenCategory && currenCategory.brands ">
+        <li class="brand" v-for="brand in currenCategory.brands" :key="brand.id">
+          <RouterLink to="/">
+            <img :src=brand.picture alt="">
+            <div class="info">
+              <p class="place"><i class="iconfont icon-dingwei"></i>{{brand.place}}</p>
+              <p class="name ellipsis">{{brand.name}}</p>cl
+              <p class="desc ellipsis-2">{{brand.desc}}</p>
+            </div>
+          </RouterLink>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script>
+import { findBrand } from '@/api/home'
 import { computed, reactive, ref } from '@vue/runtime-core'
 import { useStore } from 'vuex'
 
@@ -41,7 +56,8 @@ export default {
     const brand = reactive({
       id: 'brand',
       name: '品牌',
-      children: [{ id: 'brand-children', name: '品牌推荐' }]
+      children: [{ id: 'brand-children', name: '品牌推荐' }],
+      brands: []
     })
     const menList = computed(() => {
       const list = store.state.category.list.map(item => {
@@ -62,6 +78,11 @@ export default {
       return menList.value.find(item => item.id === categoryId.value)
     })
 
+    // 获取品牌数据
+    findBrand().then(data => {
+      brand.brands = data.result
+    })
+
     return { menList, categoryId, currenCategory }
   }
 }
@@ -74,12 +95,12 @@ export default {
   background: rgba(0,0,0,0.8);
   position: relative;
   z-index: 99;
-  .menu {
+  .menu{
     li {
       padding-left: 40px;
       height: 50px;
       line-height: 50px;
-      &:hover {
+      &:hover,&.active  {
         background: @xtxColor;
       }
       a {
@@ -157,6 +178,26 @@ export default {
           }
         }
       }
+       // 品牌的样式
+        li.brand {
+          height: 180px;
+          a {
+            align-items: flex-start;
+            img {
+              width: 120px;
+              height: 160px;
+            }
+            .info {
+              p {
+                margin-top: 8px;
+              }
+              .place {
+                color: #999;
+              }
+            }
+          }
+        }
+
     }
   }
   &:hover {
