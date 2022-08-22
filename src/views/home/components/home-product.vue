@@ -9,7 +9,7 @@
       </template>
       <div class="box">
         <RouterLink class="cover" :to="`/categoru/${cate.id}`">
-          <img :src=cate.picture alt="">
+          <img  alt="" v-lazy="cate.picture">
           <strong class="label">
             <span>{{cate.name}}</span>
             <span>{{cate.saleInfo}}</span>
