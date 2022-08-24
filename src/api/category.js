@@ -9,3 +9,12 @@ import request from '@/utils/request'
 export const findAllCategory = () => {
   return request('/home/category/head', 'get')
 }
+
+/**
+ * 获取项目顶级类目信息 children 属性就是各个子分类
+ * @param {string} id - 顶级类目ID
+ * @returns promise
+ */
+export const findTopCategory = (id) => {
+  return request('/category', 'get', { id })
+}

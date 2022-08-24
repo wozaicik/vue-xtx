@@ -4,7 +4,9 @@
       <!-- 面包屑 -->
       <XtxBread>
         <XtxBreadItem to="/">首页</XtxBreadItem>
-        <XtxBreadItem >{{topCategory.name}}</XtxBreadItem>
+        <transition name="fade-right" >
+            <XtxBreadItem :key="topCategory.id">{{topCategory.name}}</XtxBreadItem>
+        </transition>
       </XtxBread>
       <!-- 轮播图 -->
       <XtxCarousel :sliders="sliders" style="height:500px" />
@@ -21,19 +23,37 @@
         </ul>
       </div>
     <!-- 全部分类 -->
+    <!-- 分类关联商品 -->
+      <div class="ref-goods" v-for="sub in subList" :key="sub.id">
+        <div class="head">
+          <h3>- {{sub.name}} -</h3>
+          <p class="tag">温暖柔软，品质之选</p>
+          <XtxMore :path="`/category/sub/${sub.id}`"/>
+        </div>
+        <div class="body">
+          <GoodsItem v-for="goods in sub.goods" :key="goods.id" :goods="goods"/>
+        </div>
+      </div>
     <!-- 推荐商品 -->
   </div>
 </div>
 </template>
 
 <script>
+
 import { ref } from '@vue/reactivity'
 import { findBanner } from '@/api/home'
 import { useStore } from 'vuex'
-import { computed } from '@vue/runtime-core'
+import { computed, watch } from '@vue/runtime-core'
 import { useRoute } from 'vue-router'
+import GoodsItem from './components/goods-item.vue'
+import { findTopCategory } from '@/api/category'
+
 export default {
   name: 'TopCategory',
+  components: {
+    GoodsItem
+  },
   setup () {
     // 轮播图
     const sliders = ref([])
@@ -49,19 +69,51 @@ export default {
       const item = store.state.category.list.find(item => {
         return item.id === route.params.id
       })
-
       if (item) {
         cate = item
       }
       return cate
     })
 
-    return { sliders, topCategory }
+    // 获取各个子类目下推荐商品
+    const subList = ref([])
+    const gidSubList = () => {
+      findTopCategory(route.params.id).then(data => {
+        subList.value = data.result.children
+      })
+    }
+
+    watch(() => route.params.id, (newVal) => {
+      // newVal && gidSubList() 加上一个严谨判断，在顶级类目下才发请求
+      if (newVal && `/category/${newVal}` === route.path) {
+        gidSubList()
+      }
+    }, { immediate: true })
+
+    return { sliders, topCategory, subList }
   }
 }
 </script>
 
 <style lang="less" scoped>
+// 实现面包屑动画
+// 进入：右侧20px的位移 透明度为零 做过渡 原来位置 没有位移 透明度为1
+// 离开：本来位置 透明度 1   做过渡0.5s  右侧 20px的位移 透明度为零
+.fade-right-enter-to,
+.fade-right-leave-from{
+  opacity: 1;
+  transform: none;
+}
+.fade-right-enter-active,
+.fade-right-leave-active{
+  transition: all .5s;
+}
+.fade-right-enter-from,
+.fade-right-leave-to{
+  opacity: 0;
+  transform: translate3d(20px,0,0);
+}
+
 .top-category {
   h3 {
     font-size: 28px;
@@ -96,6 +148,31 @@ export default {
           }
         }
       }
+    }
+  }
+    .ref-goods {
+    background-color: #fff;
+    margin-top: 20px;
+    position: relative;
+    .head {
+      .xtx-more {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+      }
+      .tag {
+        text-align: center;
+        color: #999;
+        font-size: 20px;
+        position: relative;
+        top: -20px;
+      }
+    }
+    .body {
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      padding: 0 65px 30px;
     }
   }
 }
