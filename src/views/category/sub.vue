@@ -4,7 +4,7 @@
       <!-- 面包屑 -->
       <SubBread></SubBread>
       <!-- 筛选区 -->
-      <SubFilter></SubFilter>
+      <SubFilter @filter-change="filterChange"></SubFilter>
       <!-- 商品面板（排序+列表） -->
       <div class="goods-list">
           <SubSort @sort-change="sortChange"></SubSort>
@@ -92,8 +92,16 @@ export default {
       goodsList.value = []
     }
     // 2.0 更改筛选组件的筛选数据，重新请求
+    const filterChange = (filterParams) => {
+      // console.log(filterParams)
+      finished.value = false
+      // 合并请求参数，保留之前的参数
+      reqParams = { ...reqParams, ...filterParams }
+      reqParams.page = 1
+      goodsList.value = []
+    }
 
-    return { loading, finished, goodsList, getData, sortChange }
+    return { loading, finished, goodsList, getData, sortChange, filterChange }
   }
 }
 </script>
