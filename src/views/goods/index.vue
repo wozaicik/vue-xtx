@@ -14,7 +14,9 @@
           <GoodsImage :images="goods.mainPictures"></GoodsImage>
           <GoodsSales></GoodsSales>
         </div>
-        <div class="spec"></div>
+        <div class="spec">
+          <GoodName :goods="goods"></GoodName>
+        </div>
       </div>
       <!-- 商品推荐 -->
       <GoodsRelevant />
@@ -38,12 +40,13 @@ import { ref } from '@vue/reactivity'
 import GoodsRelevant from './components/goods-relevant'
 import GoodsImage from './components/goods-image.vue'
 import GoodsSales from './components/goods-sales.vue'
+import GoodName from './components/goods-name.vue'
 import { useRoute } from 'vue-router'
 import { findGoods } from '@/api/product'
 import { nextTick, watch } from '@vue/runtime-core'
 export default {
   name: 'XtxGoodsPage',
-  components: { GoodsRelevant, GoodsImage, GoodsSales },
+  components: { GoodsRelevant, GoodsImage, GoodsSales, GoodName },
   setup () {
     // 1. 获取商品详情，进行渲染
     const goods = useGoods()
