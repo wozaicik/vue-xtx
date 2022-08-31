@@ -17,6 +17,8 @@
         <div class="spec">
           <GoodName :goods="goods"></GoodName>
           <GoodsSku :goods="goods" @change="changeSku"></GoodsSku>
+          <xtx-numbox v-model="num" :max="goods.inventory" label="数量"></xtx-numbox>
+          <xtx-button type="primary" style="margin-top:20px">加入购物车</xtx-button>
         </div>
       </div>
       <!-- 商品推荐 -->
@@ -25,7 +27,7 @@
       <div class="goods-footer">
         <div class="goods-article">
           <!-- 商品+评价 -->
-          <div class="goods-tabs"></div>
+          <GoodsTabs></GoodsTabs>
           <!-- 注意事项 -->
           <div class="goods-warn"></div>
         </div>
@@ -43,12 +45,13 @@ import GoodsImage from './components/goods-image.vue'
 import GoodsSales from './components/goods-sales.vue'
 import GoodName from './components/goods-name.vue'
 import GoodsSku from './components/goods-sku.vue'
+import GoodsTabs from './components/goods-tabs.vue'
 import { useRoute } from 'vue-router'
 import { findGoods } from '@/api/product'
 import { nextTick, watch } from '@vue/runtime-core'
 export default {
   name: 'XtxGoodsPage',
-  components: { GoodsRelevant, GoodsImage, GoodsSales, GoodName, GoodsSku },
+  components: { GoodsRelevant, GoodsImage, GoodsSales, GoodName, GoodsSku, GoodsTabs },
   setup () {
     // 1. 获取商品详情，进行渲染
     const goods = useGoods()
@@ -60,7 +63,10 @@ export default {
         goods.value.inventory = sku.price
       }
     }
-    return { goods, changeSku }
+    // 选择的数量
+    const num = ref(1)
+
+    return { goods, changeSku, num }
   }
 }
 // 获取商品详情
@@ -112,10 +118,10 @@ const useGoods = () => {
     min-height: 1000px;
   }
 }
-.goods-tabs {
-  min-height: 600px;
-  background: #fff;
-}
+// .goods-tabs {
+//   min-height: 600px;
+//   background: #fff;
+// }
 .goods-warn {
   min-height: 600px;
   background: #fff;
