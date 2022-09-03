@@ -10,7 +10,7 @@
         @click="activeName='GoodsComment'"
         :class="{active:activeName==='GoodsComment'}"
         href="javascript:;">
-        商品评价<span>(500+)</span></a>
+        商品评价<span>({{goods.commentCount}})</span></a>
     </nav>
     <!-- 切换内容的地方 -->
     <!-- <GoodsDetail></GoodsDetail>
@@ -23,6 +23,7 @@
 import { ref } from '@vue/reactivity'
 import GoodsDetail from './goods-detial.vue'
 import GoodsComment from './goods-comment.vue'
+import { inject } from '@vue/runtime-core'
 export default {
   name: 'GoodsTabs',
   components: {
@@ -32,7 +33,10 @@ export default {
   setup () {
     // activeName的值， GoodsDetail GoodsComment
     const activeName = ref('GoodsDetail')
-    return { activeName }
+
+    const goods = inject('goods')
+
+    return { activeName, goods }
   }
 }
 

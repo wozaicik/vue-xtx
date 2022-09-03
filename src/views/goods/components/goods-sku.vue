@@ -104,7 +104,7 @@ export default {
     if (props.skuId) {
       initDefaultSelected(props.goods, props.skuId)
     }
-    console.log(pathMap)
+    // console.log(pathMap)
     // 组件初始化：更新按钮的禁用状态
     updateDisableStatus(props.goods.specs, pathMap)
     // 1.0 选中与取消选中，约定每一个按钮都拥有自己的选中状态数据：selected
