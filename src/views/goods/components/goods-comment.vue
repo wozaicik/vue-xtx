@@ -16,7 +16,7 @@
         </div>
       </div>
     </div>
-    <div class="sort">
+    <div class="sort" v-if="commentInfo">
       <span>排序：</span>
       <a @click="changeSort(null)" :class="{active:reqParams.sortField===null}"        href="javascript:;"  >默认</a>
       <a @click="changeSort('createTime')" :class="{active:reqParams.sortField==='createTime'}" href="javascript:;"  >最新</a>
@@ -37,6 +37,8 @@
             <span class="attr">{{formatSpecs(item.orderInfo.specs)}}</span>
           </div>
           <div class="text">{{item.content}}</div>
+          <!-- 评价图片组件 -->
+          <GoodsCommentImage v-if="item.pictures.length" :pictures="item.pictures"></GoodsCommentImage>
           <div class="time">
             <span>{{item.createTime}}</span>
             <span class="zan"><i class="iconfont icon-dianzan"></i>{{item.praiseCount}}</span>
@@ -45,6 +47,8 @@
       </div>
     </div>
     </div>
+    <!-- 分页组件 -->
+    <xtx-pagination v-if="total"  :current-page="reqParams.page" @current-page="chagnePagerFn"></xtx-pagination>
   </div>
 </template>
 
@@ -52,10 +56,14 @@
 import { reactive, ref } from '@vue/reactivity'
 import { findGoodsCommentinfo, findGoodsCommentList } from '@/api/product'
 import { inject, watch } from '@vue/runtime-core'
+import GoodsCommentImage from './goods-comment-img.vue'
 // import { useRoute } from 'vue-router'
 
 export default {
   name: 'GoodsComment',
+  components: {
+    GoodsCommentImage
+  },
   setup () {
     // 获取评价信息
     const commentInfo = ref(null)
@@ -108,11 +116,13 @@ export default {
     })
     // 初始化需要发请求，筛选条件发送变化发请求
     const commentList = ref([])
+    const total = ref(0)
     watch(reqParams, () => {
       // reqParams.page = 1
       // console.log(goodsId)
       findGoodsCommentList(goods.value.id, reqParams).then(data => {
         commentList.value = data.result.item
+        total.value = data.result.counts
         console.log(commentList.value)
       })
     }, { immediate: true })
@@ -127,7 +137,22 @@ export default {
       return nickname.substr(0, 1) + '****' + nickname.sustr(-1)
     }
 
-    return { commentInfo, currentTagIndex, changeTag, reqParams, changeSort, commentList, formatSpecs, formatNickname }
+    // 实现分页切换
+    const chagnePagerFn = (newPage) => {
+      reqParams.page = newPage
+    }
+    return {
+      commentInfo,
+      currentTagIndex,
+      changeTag,
+      reqParams,
+      changeSort,
+      commentList,
+      formatSpecs,
+      formatNickname,
+      total,
+      chagnePagerFn
+    }
   }
 }
 </script>
