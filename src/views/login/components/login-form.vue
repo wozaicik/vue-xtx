@@ -8,7 +8,7 @@
           <i class="iconfont icon-msg"></i> 使用短信登录
         </a>
       </div>
-      <Form class="form" :validation-schema="schema" autocomplete="off" v-slot="{errors}">
+      <Form ref="formCom" class="form" :validation-schema="schema" autocomplete="off" v-slot="{errors}">
         <template v-if="!isMsgLogin">
           <div class="form-item">
             <div class="input">
@@ -20,35 +20,39 @@
           <div class="form-item">
             <div class="input">
               <i class="iconfont icon-lock"></i>
-              <Field v-model="form.password" name="password" type="password" placeholder="请输入密码"/>
+              <Field :class="{error:errors.password}" v-model="form.password" name="password" type="password" placeholder="请输入密码"/>
             </div>
+            <div v-if="errors.password" class="error"><i class="iconfont icon-warning" />{{errors.password}}</div>
           </div>
         </template>
         <template v-else>
           <div class="form-item">
             <div class="input">
               <i class="iconfont icon-user"></i>
-              <Field v-model="form.mobile" name="mobile" type="text" placeholder="请输入手机号" />
+              <Field  :class="{error:errors.mobile}" v-model="form.mobile" name="mobile" type="text" placeholder="请输入手机号" />
             </div>
+            <div v-if="errors.mobile" class="error"><i class="iconfont icon-warning" />{{errors.mobile}}</div>
           </div>
           <div class="form-item">
             <div class="input">
               <i class="iconfont icon-code"></i>
-              <Field v-model="form.code" name="code" type="password" placeholder="请输入验证码"/>
+              <Field :class="{error:errors.code}" v-model="form.code" name="code" type="text" placeholder="请输入验证码"/>
               <span class="code">发送验证码</span>
             </div>
+            <div v-if="errors.code" class="error"><i class="iconfont icon-warning" />{{errors.code}}</div>
           </div>
         </template>
         <div class="form-item">
           <div class="agree">
-            <XtxCheckbox v-model="form.isAgree" />
+            <XtxCheckbox v-model="form.isAgree" name="isAgree"/>
             <span>我已同意</span>
             <a href="javascript:;">《隐私条款》</a>
             <span>和</span>
             <a href="javascript:;">《服务条款》</a>
           </div>
+          <div v-if="errors.isAgree" class="error"><i class="iconfont icon-warning" />{{errors.isAgree}}</div>
         </div>
-        <a href="javascript:;" class="btn">登录</a>
+        <a @click="login()" href="javascript:;" class="btn">登录</a>
       </Form>
       <div class="action">
         <img src="https://qzonestyle.gtimg.cn/qzone/vas/opensns/res/img/Connect_logo_7.png" alt="">
@@ -63,6 +67,9 @@
 <script>
 import { reactive, ref } from '@vue/reactivity'
 import { Form, Field } from 'vee-validate'
+import schema from '@/utils/vee-validate-schema'
+import { watch } from '@vue/runtime-core'
+import Message from '@/components/library/Message'
 
 export default {
   name: 'LoginForm',
@@ -85,16 +92,40 @@ export default {
     // 1.0 导入Form Field 组件将form和input值进行替换，需要加上name  name用来指定将来的校验规则
     // 2.0 Field需要进行数据绑定 字段的名称最好和后台接口一致
     // 3.0 定义Field name属性指定的校验规则函数 Form的validation-schema接收定义好的校验规则，是一个对象
-    const schema = {
+    // 4.0 自定义组件需要校验必须先支持v-model
+    const mySchema = {
       // 校验函数规则：返回TRUE就是校验成功，返回一个字符串就是失败，字符串就是错误提示
-      account (value) {
-        console.log('sdf')
-        if (!value) return '请输入用户名'
-        return true
-      }
+      account: schema.account,
+      password: schema.password,
+      mobile: schema.mobile,
+      code: schema.code,
+      isAgree: schema.isAgree
+    }
+    const formCom = ref(null)
+    // 监听isMsgLogin重置表单数据 数据+清除校验结果
+    watch(isMsgLogin, () => {
+      form.isAgree = true
+      form.account = null
+      form.password = null
+      form.mobile = null
+      form.code = null
+      // 如果没有销毁Field组件，之前的校验结果是不会销毁的
+      // form组件提供了一个resetForm 函数清除校验结果
+      formCom.value.resetForm()
+    })
+
+    // 需要在点击登录的时候，对整体表单进行校验
+    const login = async () => {
+      // Form 组件提供了一个validate函数作为整体表单校验 返回的是一个promise
+      const valid = await formCom.value.validate()
+      console.log(valid)
+      Message({ type: 'error', text: '用户名或者密码错误' })
     }
 
-    return { isMsgLogin, form, schema }
+    // 拿到当前实例  获取组件实例
+    // const { proxy } = getCurrentInstance()
+
+    return { isMsgLogin, form, schema: mySchema, formCom, login }
   }
 }
 

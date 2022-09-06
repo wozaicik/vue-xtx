@@ -16,6 +16,9 @@
 // 通过文件路径数组，通过遍历数组，再使用 importFn 根据路径导入组件对象
 // 遍历的同时进行全局注册即可
 // context('目录的名称-路径'，'是否加载子目录','加载文件的匹配正则')
+
+import Message from './Message'
+
 const importFn = require.context('./', false, /\.vue$/)
 
 export default {
@@ -37,6 +40,9 @@ export default {
 
     // 定义指令
     defineDirective(app)
+
+    // 定义原型函数
+    app.config.globalProperties.$message = Message
   }
 }
 
