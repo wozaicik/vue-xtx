@@ -70,6 +70,9 @@ import { Form, Field } from 'vee-validate'
 import schema from '@/utils/vee-validate-schema'
 import { watch } from '@vue/runtime-core'
 import Message from '@/components/library/Message'
+import { userAccountLogin, userMobileLogin } from '@/api/user'
+import { useStore } from 'vuex'
+import { useRoute, useRouter } from 'vue-router'
 
 export default {
   name: 'LoginForm',
@@ -114,12 +117,49 @@ export default {
       formCom.value.resetForm()
     })
 
+    const store = useStore()
+    const router = useRouter()
+    const route = useRoute()
     // 需要在点击登录的时候，对整体表单进行校验
     const login = async () => {
       // Form 组件提供了一个validate函数作为整体表单校验 返回的是一个promise
       const valid = await formCom.value.validate()
-      console.log(valid)
-      Message({ type: 'error', text: '用户名或者密码错误' })
+      // console.log(valid)
+      // Message({ type: 'error', text: '用户名或者密码错误' })
+      // 1.0 准备一个api做账号登录
+      // 2.0 调用aou函数
+      // 3.0 成功：跳转至来源页或者首页 存储用户信息
+      // 4.0 失败：消息提示
+      if (valid) {
+        // try catch
+        try {
+          let data = null
+          if (isMsgLogin.value) {
+            // 手机号登录
+            // 准备一个api函数做手机号登录
+            // 调用api函数
+            // 成功 存储用户信息
+            // 失败 消息提示
+            const { mobile, code } = form
+            data = await userMobileLogin({ mobile, code })
+          } else {
+            const { account, password } = form
+            data = await userAccountLogin({ account, password })
+            // userAccountLogin({ account, password }).then(data => {
+          }
+          // 存储用户信息
+          const { id, account, avatar, moblie, nickname, token } = data.result
+          store.commit('user/setUser', { id, account, avatar, moblie, nickname, token })
+          // 进行跳转
+          router.push(route.query.redirectUrl || '/')
+          // 友好提示 登录成功
+          Message({ type: 'success', text: '登录成功' })
+        } catch (e) {
+          if (e.response.data) {
+            Message({ type: 'error', text: e.response.data.message || '登录失败' })
+          }
+        }
+      }
     }
 
     // 拿到当前实例  获取组件实例

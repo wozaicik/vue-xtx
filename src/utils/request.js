@@ -39,7 +39,7 @@ instance.interceptors.response.use(res => res.data, err => {
     // 1.清空本地无效的用户信息
     // 2.跳转登录页码
     // 3. 跳转需要传参（当前路由地址）
-    store.commit('user/serUser', {})
+    store.commit('user/setUser', {})
     // 当前路由地址
     // 组件里面：$router.path        $router.fullpath===/user?a=10
     // js模块中 router.currentRoute.value.fullpath 就是当前路由地址  router.currentRoute是ref响应式数据
