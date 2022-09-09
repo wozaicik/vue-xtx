@@ -1,3 +1,4 @@
+import { getNewCartGoods } from '@/api/cart'
 
 // 购物车模块
 export default {
@@ -26,6 +27,23 @@ export default {
       }
       // 追加新的商品
       state.list.unshift(payload)
+    },
+    // 修改购物车商品
+    updateCart (state, goods) {
+      // goods 商品信息 nowprice isEffective stock
+      // goods 商品对象的字段不固定 对象中有哪些字段就改哪些字段，字段的值合理才改
+      // goods 商品对象 必须有SKUID
+      const updateGoods = state.list.find(item => item.skuId === goods.skuId)
+      for (const key in goods) {
+        if (goods[key] !== undefined && goods[key] !== null && goods[key] !== '') {
+          updateGoods[key] = goods[key]
+        }
+      }
+    },
+    // 删除购物车商品
+    deleteCart (state, skuId) {
+      const index = state.list.findIndex(item => item.skuId === skuId)
+      state.list.splice(index, 1)
     }
   },
   actions: {
@@ -37,6 +55,43 @@ export default {
         } else {
           // 未登录
           ctx.commit('insertCart', payload)
+          resolve()
+        }
+      })
+    },
+    findCart (ctx) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.profile.token) {
+          // TODO已登录
+        } else {
+          // 未登录
+          // 同时发送请求（有几个商品发几个请求） 等所有请求成功，一并去修改本地数据
+          // promise.all(promise数组).then((dataList)=>{}) 同时发请求 所有请求成功 得到所有成功结果
+          // Promise.race() Promise.resolve() Promise.reject() new Promise()
+          const promiseArr = ctx.state.list.map(goods => {
+            return getNewCartGoods(goods.skuId)
+          })
+          // dataList 成果结果的集合， 数据顺序和promiseArr顺序一致，它又是根据state.list而来
+          Promise.all(promiseArr).then(dataList => {
+            // 更新本地购物车
+            dataList.forEach((data, i) => {
+              ctx.commit('updateCart', { skuId: ctx.state.list[i].skuId, ...data.result })
+            })
+            // 调用resolve操作
+            resolve()
+          })
+        }
+      })
+    },
+    // 删除购物商品
+    deleteCart (ctx, payload) {
+      // 单条 payload 现在 就是skuId
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.profile.token) {
+          // 已登录
+        } else {
+          // 未登录
+          ctx.commit('deleteCart', payload)
           resolve()
         }
       })
