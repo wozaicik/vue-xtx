@@ -47,6 +47,33 @@ export default {
     }
   },
   actions: {
+    // 全选于取消全选
+    checkAllCart (ctx, selected) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.profile.token) {
+          // 已登录
+        } else {
+          // 未登录
+          ctx.getters.validList.forEach(goods => {
+            ctx.commit('updateCart', { skuId: goods.skuId, selected })
+          })
+          resolve()
+        }
+      })
+    },
+    // 修改购物车(选中状态，数量)
+    updateCart (ctx, payload) {
+      // payload 需要：skuId 可能有selected count
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.profile.token) {
+          // 已登录
+        } else {
+          // 未登录
+          ctx.commit('updateCart', payload)
+          resolve()
+        }
+      })
+    },
     // 加入购物车
     insertCart (ctx, payload) {
       return new Promise((resolve, reject) => {
@@ -110,6 +137,26 @@ export default {
     // 有效商品金额
     validAmount (state, getters) {
       return getters.validList.reduce((p, c) => p + c.count * c.nowPrice, 0)
+    },
+    // 无效商品列表
+    inValidList (state) {
+      return state.list.filter(goods => goods.stock <= 0 || !goods.isEffective)
+    },
+    // 已选商品列表
+    selectedList (state, getters) {
+      return getters.validList.filter(item => item.selected)
+    },
+    // 已选商品总件数
+    selectedTotal (state, getters) {
+      return getters.selectedList.reduce((p, c) => p + c.count, 0)
+    },
+    // 已选商品总金额
+    selectedAmount (state, getters) {
+      return getters.selectedList.reduce((p, c) => p + c.count * c.nowPrice, 0)
+    },
+    // 是否全选
+    isCheckAll (state, getters) {
+      return getters.validList.length !== 0 && getters.selectedList.length === getters.validList.length
     }
   }
 }

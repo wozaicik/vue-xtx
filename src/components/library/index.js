@@ -17,6 +17,7 @@
 // 遍历的同时进行全局注册即可
 // context('目录的名称-路径'，'是否加载子目录','加载文件的匹配正则')
 
+import Confirm from './Confirm'
 import Message from './Message'
 
 const importFn = require.context('./', false, /\.vue$/)
@@ -43,6 +44,7 @@ export default {
 
     // 定义原型函数
     app.config.globalProperties.$message = Message
+    app.config.globalProperties.$confirm = Confirm
   }
 }
 
