@@ -65,7 +65,7 @@ const updateDisableStatus = (specs, pathMap) => {
     item.values.forEach(val => {
       // val.disabled = !pathMap[val.name]
       // 2.0判断当前是否选中，是选中不用判断
-      if (val.selected) return
+      if (val.selected) return console.log(222)
       // 3.0剔除undefined数据，按照分隔符拼接key
       selectedValues[i] = val.name
       // 4.0去路径字典中查找是否有数据，有可以点击，没有就禁用
@@ -79,6 +79,7 @@ const updateDisableStatus = (specs, pathMap) => {
 const initDefaultSelected = (goods, skuId) => {
 // 1.0 找出sku的信息
 // 2.0 遍历每一个按钮 按钮的值和sku记录的值相同，就选中
+  console.log(1111111111)
   const sku = goods.skus.find(sku => sku.id === skuId)
   goods.specs.forEach((item, i) => {
     const val = item.values.find(val => val.name === sku.specs[i].valueName)

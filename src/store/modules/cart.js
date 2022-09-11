@@ -1,4 +1,4 @@
-import { getNewCartGoods } from '@/api/cart'
+import { getNewCartGoods, mergeCart } from '@/api/cart'
 
 // 购物车模块
 export default {
@@ -10,6 +10,7 @@ export default {
     }
   },
   mutations: {
+
     // 加入购物车
     insertCart (state, payload) {
       // 加入购物车字段必须和后端保持一致
@@ -44,9 +45,61 @@ export default {
     deleteCart (state, skuId) {
       const index = state.list.findIndex(item => item.skuId === skuId)
       state.list.splice(index, 1)
+    },
+    // 设置购物车
+    setCart (state, payload) {
+      // payload 为空数组，清空， 有值数组，设置
+      state.list = payload
     }
   },
   actions: {
+    // 合并购物侧
+    async  mergeCart (ctx) {
+      const cartList = ctx.state.list.map(goods => {
+        return {
+          skuId: goods.skuId,
+          selected: goods.selected,
+          count: goods.count
+        }
+      })
+      await mergeCart(cartList)
+      ctx.commit('setCart', [])
+    },
+    // 修改规格
+    updateCartSku (ctx, { oldSkuId, newSku }) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.profile.token) {
+          // 已登录
+        } else {
+          // 未登录
+          // 1.0 找出旧的商品信息
+          // 2.0 删除旧的商品信息
+          // 3.0 根据新的sku信息和旧的商品信息，合并成一条新的购物车商品数据
+          // 4.0 添加新的商品
+          const oldGoods = ctx.state.list.find(item => item.skuId === oldSkuId)
+          ctx.commit('deleteCart', oldSkuId)
+          const { skuId, price: nowPrice, skuText: attrsText, inventory: stock } = newSku
+          const newGoods = { ...oldGoods, skuId, nowPrice, attrsText, stock }
+          ctx.commit('insertCart', newGoods)
+          resolve()
+        }
+      })
+    },
+    // 批量删除
+    batchDeleteCart (ctx, isClear) {
+      return new Promise((resolve, reject) => {
+        if (ctx.rootState.user.profile.token) {
+          // 已登录
+        } else {
+          // 未登录
+          // isClear 为TRUE 删除失效商品列表 否则是删除选中商品
+          ctx.getters[isClear ? 'inValidList' : 'selectedList'].forEach(item => {
+            ctx.commit('deleteCart', item.skuId)
+          })
+          resolve()
+        }
+      })
+    },
     // 全选于取消全选
     checkAllCart (ctx, selected) {
       return new Promise((resolve, reject) => {

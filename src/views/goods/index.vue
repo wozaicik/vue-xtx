@@ -84,7 +84,7 @@ export default {
     // id skuId name attrsText picture price nowPrice selected stock count isEffective
     const insertCart = () => {
       if (currSku.value && currSku.value.skuId) {
-        const { skuId, specsTxt: attrsText, inventory: stock } = currSku.value
+        const { skuId, skuText: attrsText, inventory: stock } = currSku.value
         const { id, name, price, mainPictures } = goods.value
         store.dispatch('cart/insertCart', {
           skuId,

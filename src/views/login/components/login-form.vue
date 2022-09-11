@@ -150,10 +150,12 @@ export default {
           // 存储用户信息
           const { id, account, avatar, moblie, nickname, token } = data.result
           store.commit('user/setUser', { id, account, avatar, moblie, nickname, token })
+          store.dispatch('cart/mergeCart').then(() => {
           // 进行跳转
-          router.push(route.query.redirectUrl || '/')
-          // 友好提示 登录成功
-          Message({ type: 'success', text: '登录成功' })
+            router.push(route.query.redirectUrl || '/')
+            // 友好提示 登录成功
+            Message({ type: 'success', text: '登录成功' })
+          })
         } catch (e) {
           if (e.response.data) {
             Message({ type: 'error', text: e.response.data.message || '登录失败' })
