@@ -151,7 +151,6 @@ export default {
           const { id, account, avatar, moblie, nickname, token } = data.result
           store.commit('user/setUser', { id, account, avatar, moblie, nickname, token })
           store.dispatch('cart/mergeCart').then(() => {
-          // 进行跳转
             router.push(route.query.redirectUrl || '/')
             // 友好提示 登录成功
             Message({ type: 'success', text: '登录成功' })

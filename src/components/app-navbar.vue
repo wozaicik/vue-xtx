@@ -21,8 +21,8 @@
 </template>
 <script>
 import { computed } from '@vue/runtime-core'
-import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
 export default {
   name: 'AppTopnav',
@@ -42,7 +42,7 @@ export default {
     const router = useRouter()
     const logout = () => {
       store.commit('user/setUser', {})
-      store.commit('cart/setCart', {})
+      store.commit('cart/setCart', [])
       router.push('/login')
     }
 

@@ -30,3 +30,49 @@ export const getGoodsSku = (skuId) => {
 export const mergeCart = (cartList) => {
   return request('/member/cart/merge', 'post', cartList)
 }
+
+/**
+ * 获取购物车列表
+ * @returns
+ */
+export const findCart = () => {
+  return request('/member/cart', 'get')
+}
+
+/**
+ * 加入购物车
+ * @param {string} object.skuId
+ * @param {Integer} object.count 加入购物车的数量
+ * @returns
+ */
+export const inserCart = ({ skuId, count }) => {
+  return request('/member/cart', 'post', { skuId, count })
+}
+
+/**
+ * 删除购物车商品，支持批量
+ * @param {Array<steing>} ids  -skuid 的集合
+ */
+export const deleteCart = (ids) => {
+  return request('/member/cart', 'delete', { ids })
+}
+
+/**
+ * 修改购物车商品 状态 数量
+ * @param {skuId} skuId
+ * @param {skuId} count 数量
+ * @param {skuId} selected 选中状态
+ * @returns
+ */
+export const updateCart = ({ skuId, selected, count }) => {
+  return request(`/member/cart/${skuId}`, 'put', { selected, count })
+}
+
+/**
+ * @param {ids} skuId 集合
+ * @param {skuId} selected 选中状态
+ * @returns
+ */
+export const checkAllCart = ({ selected, ids }) => {
+  return request('/member/cart/selected', 'put', { selected, ids })
+}
