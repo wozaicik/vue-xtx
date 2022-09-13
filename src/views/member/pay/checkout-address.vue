@@ -5,13 +5,13 @@
       <ul v-if="showAddress">
         <li><span>收<i />货<i />人：</span>{{showAddress.receiver}}</li>
         <li><span>联系方式：</span>{{showAddress.contact.replace(/^(\d{3})\d{4}(\d{4})/,'$1****$2')}}</li>
-        <li><span>收货地址：</span>{{showAddress.fullLocation}}{{showAddress.address}}</li>
+        <li><span>收货地址：</span>{{showAddress.fullLocation.replace(/ /g,'')}}{{showAddress.address}}</li>
       </ul>
-      <a v-if="showAddress" href="javascript:;">修改地址</a>
+      <a @click="openAddressEdit(showAddress)" v-if="showAddress" href="javascript:;">修改地址</a>
     </div>
     <div class="action">
       <XtxButton @click="openDialog()" class="btn">切换地址</XtxButton>
-      <XtxButton @click="openAddressEdit" class="btn">添加地址</XtxButton>
+      <XtxButton @click="openAddressEdit({})" class="btn">添加地址</XtxButton>
     </div>
   </div>
   <!-- 对话框组件 -->
@@ -29,7 +29,7 @@
     </template>
   </XtxDialog>
   <!-- 添加收货地址编辑组件 -->
-  <AddressEdit ref="addressEditCom"></AddressEdit>
+  <AddressEdit @on-success="successHandler" ref="addressEditCom"></AddressEdit>
 </template>
 <script>
 import { ref } from '@vue/reactivity'
@@ -90,11 +90,32 @@ export default {
 
     // 打开编辑收货地址组件
     const addressEditCom = ref(null)
-    const openAddressEdit = () => {
-      addressEditCom.value.open()
+    const openAddressEdit = (address) => {
+      // console.log(address)
+      // 添加的时候是一个空对象
+      // 修改的时候，有数据
+      addressEditCom.value.open(address)
     }
 
-    return { showAddress, visibleDialog, selectedAddress, confirmAddressFn, openDialog, openAddressEdit, addressEditCom }
+    const successHandler = (formData) => {
+      // 根据formData中的id去点前地址列表中查找，有id就是修改，否则就是添加
+      const address = props.list.find(item => item.id === formData.id)
+      if (address) {
+        for (const key in address) {
+          address[key] = formData[key]
+        }
+      } else {
+        // 如果是添加：往list中最加一条
+      // 当你在修改formdata中的数据时，数字中的数据也会更新，因为同一个引用地址
+      // 什么时候修改formdata数据，当你打开对话框需要情况之前的输入信息
+      // 可供formdata数据
+        const jsonStr = JSON.stringify(formData)
+        // eslint-disable-next-line vue/no-mutating-props
+        props.list.unshift(JSON.parse(jsonStr))
+      }
+    }
+
+    return { showAddress, visibleDialog, selectedAddress, confirmAddressFn, openDialog, openAddressEdit, addressEditCom, successHandler }
   }
 }
 </script>

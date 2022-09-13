@@ -71,7 +71,7 @@
         </div>
         <!-- 提交订单 -->
         <div class="submit">
-          <XtxButton type="primary">提交订单</XtxButton>
+          <XtxButton @click="submitOrderFn()" type="primary">提交订单</XtxButton>
         </div>
       </div>
     </div>
@@ -79,8 +79,10 @@
 </template>
 <script>
 import CheckoutAddress from './checkout-address.vue'
-import { createOrder } from '@/api/order'
-import { ref } from '@vue/reactivity'
+import { createOrder, submitOrder } from '@/api/order'
+import { reactive, ref } from '@vue/reactivity'
+import Message from '@/components/library/Message'
+import { useRouter } from 'vue-router'
 export default {
   name: 'XtxPayCheckoutPage',
   components: {
@@ -92,17 +94,45 @@ export default {
     createOrder().then(data => {
       order.value = data.result
       // console.log(order.value.goods)
+      reqParams.goods = data.result.goods.map(({ skuId, count }) => ({ skuId, count }))
+    })
+
+    // 结算功能-提交订单-提交信息
+    const reqParams = reactive({
+      // 商品信息，获取订单信息后设置
+      goods: [],
+      // 收货地址，切换收货地址或者组件默认的时候设置
+      addressId: null,
+      deliveryTimeType: 1,
+      payType: 1,
+      payChannel: 1,
+      buyerMessage: ''
     })
 
     // 提交订单：需要收货地址ID
-    const addressId = ref(null)
+    // const addressId = ref(null)
 
     const changeAddress = (id) => {
-      addressId.value = id
+      reqParams.addressId = id
       console.log(id)
     }
 
-    return { order, addressId, changeAddress }
+    // 提交订单
+    const router = useRouter()
+    const submitOrderFn = () => {
+      console.log(reqParams.addressId)
+      if (!reqParams.addressId) {
+        return Message({ text: '请，请选择收货地址' })
+      }
+      submitOrder(reqParams).then(data => {
+        // 提交订单成功
+        Message({ type: 'success', text: '提交订单成功' })
+        // 跳转支付页面
+        router.push(`/member/pay?oederId=${data.result.id}`)
+      })
+    }
+
+    return { order, changeAddress, reqParams, submitOrderFn }
   }
 }
 </script>
