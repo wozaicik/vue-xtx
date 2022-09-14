@@ -65,7 +65,7 @@ const updateDisableStatus = (specs, pathMap) => {
     item.values.forEach(val => {
       // val.disabled = !pathMap[val.name]
       // 2.0判断当前是否选中，是选中不用判断
-      if (val.selected) return console.log(222)
+      if (val.selected) return // console.log(222)
       // 3.0剔除undefined数据，按照分隔符拼接key
       selectedValues[i] = val.name
       // 4.0去路径字典中查找是否有数据，有可以点击，没有就禁用

@@ -114,13 +114,13 @@ export default {
 
     const changeAddress = (id) => {
       reqParams.addressId = id
-      console.log(id)
+      // console.log(id)
     }
 
     // 提交订单
     const router = useRouter()
     const submitOrderFn = () => {
-      console.log(reqParams.addressId)
+      // console.log(reqParams.addressId)
       if (!reqParams.addressId) {
         return Message({ text: '请，请选择收货地址' })
       }
@@ -128,7 +128,7 @@ export default {
         // 提交订单成功
         Message({ type: 'success', text: '提交订单成功' })
         // 跳转支付页面
-        router.push(`/member/pay?oederId=${data.result.id}`)
+        router.push(`/member/pay?orderId=${data.result.id}`)
       })
     }
 

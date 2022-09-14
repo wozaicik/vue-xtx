@@ -152,9 +152,13 @@ export default {
       if (store.getters['cart/selectedList'].length === 0) {
         return Message({ text: '至少选中一件商品' })
       }
-      Confirm({ text: '下单结算需要登录，确认现在去登录吗？' }).then(() => {
+      if (!store.state.user.profile.token) {
+        Confirm({ text: '下单结算需要登录，确认现在去登录吗？' }).then(() => {
+          router.push('/member/checkout')
+        }).catch(e => {})
+      } else {
         router.push('/member/checkout')
-      }).catch(e => {})
+      }
     }
 
     return { checkOne, checkAll, deleteCart, batchDeleteCart, updateCount, updataCartKsu, checkout }
