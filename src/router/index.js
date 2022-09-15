@@ -12,6 +12,9 @@ const Checkout = () => import('@/views/member/pay/checkout.vue')
 const Pay = () => import('@/views/member/pay/index.vue')
 const PayResult = () => import('@/views/member/pay/result.vue')
 
+const MemberLayout = () => import('@/views/member/Layout')
+const MemberHome = () => import('@/views/member/home/index')
+
 const routes = [
   // 一级路由布局容器
   {
@@ -25,7 +28,14 @@ const routes = [
       { path: '/cart', component: Cart },
       { path: '/member/checkout', component: Checkout },
       { path: '/member/Pay', component: Pay },
-      { path: '/pay/callback', component: PayResult }
+      { path: '/pay/callback', component: PayResult },
+      {
+        path: '/member',
+        component: MemberLayout,
+        children: [
+          { path: '/member', component: MemberHome }
+        ]
+      }
     ]
   },
   { path: '/login', component: Login }

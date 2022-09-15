@@ -3,12 +3,12 @@
     <div class="container">
       <ul>
         <template v-if="profile.token">
-            <li><a href="javascript:;"><i class="iconfont icon-user"></i>{{profile.account}}</a></li>
+            <li><RouterLink to="/member"><i class="iconfont icon-user"></i>{{profile.account}}</RouterLink></li>
             <li @click="logout"><a href="javascript:;">退出登录</a></li>
         </template>
         <template v-else>
             <li><RouterLink to="/Login">请先登录</RouterLink></li>
-            <li><a href="javascript:;">免费注册</a></li>
+            <li><RouterLink to="/member">免费注册</RouterLink></li>
         </template>
         <li><a href="javascript:;">我的订单</a></li>
         <li><a href="javascript:;">会员中心</a></li>
