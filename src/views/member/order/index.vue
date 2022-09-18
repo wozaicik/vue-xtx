@@ -14,7 +14,15 @@
     <!-- 订单列表 -->
     <div class="order-list">
       <div v-if="loading" class="loading"></div>
-      <OrderItem @on-cancel="handlerCancel" v-for="item in orderList" :key="item.id" :order="item"></OrderItem>
+      <OrderItem
+        @on-delete="handlerDelete"
+        @on-cancel="handlerCancel"
+        @on-confirm="handlerConfirm"
+        @on-logistics="handlerLogistics"
+        v-for="item in orderList"
+        :key="item.id"
+        :order="item">
+      </OrderItem>
       <div class="none" v-if="!loading && orderList.length === 0" >暂无数据</div>
     </div>
     <!-- 分页组件 -->
@@ -26,6 +34,8 @@
       :current-page="reqParams.page"  />
       <!-- 取消原因组件 -->
       <OrderCancel ref="orderCancelCom"></OrderCancel>
+      <!-- 查看物流组件 -->
+      <OrderLogistics ref="orderLogisticsCom"></OrderLogistics>
 </div>
 </template>
 
@@ -34,12 +44,15 @@ import { reactive, ref } from '@vue/reactivity'
 import { orderStatus } from '@/api/constants'
 import OrderItem from './components/order-item.vue'
 import OrderCancel from './components/order-cancel.vue'
-import { findOrderList } from '@/api/order'
+import OrderLogistics from './components/order-logistics.vue'
+import { confirmOrder, deleteOrder, findOrderList } from '@/api/order'
 import { watch } from '@vue/runtime-core'
+import Confirm from '@/components/library/Confirm'
+import Message from '@/components/library/Message'
 
 export default {
   name: 'MemberOrder',
-  components: { OrderItem, OrderCancel },
+  components: { OrderItem, OrderCancel, OrderLogistics },
   setup () {
     const activeName = ref('all')
 
@@ -48,18 +61,22 @@ export default {
       pageSize: 5,
       orderState: 0
     })
+
     const orderList = ref([])
     const loading = ref(false)
     const total = ref(0)
 
-    watch(reqParams, () => {
+    const getOrderList = () => {
       loading.value = true
       findOrderList(reqParams).then(data => {
         orderList.value = data.result.items
         total.value = data.result.counts
-        console.log(1)
         loading.value = false
       })
+    }
+
+    watch(reqParams, () => {
+      getOrderList()
     }, { immediate: true })
 
     const tabClick = ({ index }) => {
@@ -67,7 +84,17 @@ export default {
       reqParams.orderState = index
     }
 
-    return { activeName, orderStatus, orderList, loading, tabClick, total, reqParams, ...useCancel() }
+    // 删除订单
+    const handlerDelete = (order) => {
+      Confirm({ text: '亲，您确认删除该订单吗' }).then(() => {
+        deleteOrder(order.id).then(() => {
+          Message({ type: 'success', text: '删除订单成功' })
+          getOrderList()
+        })
+      }).catch(() => {})
+    }
+
+    return { activeName, orderStatus, orderList, loading, tabClick, total, reqParams, ...useCancel(), ...useConfirm(), ...useLogistics(), handlerDelete }
   }
 }
 // 取消订单逻辑
@@ -78,6 +105,26 @@ const useCancel = () => {
     orderCancelCom.value.open(order)
   }
   return { handlerCancel, orderCancelCom }
+}
+// 确认收货逻辑
+const useConfirm = () => {
+  const handlerConfirm = (order) => {
+    Confirm({ text: '亲，您确认收货吗？确认后货款将打给卖家' }).then(() => {
+      confirmOrder(order.id).then(() => {
+        Message({ type: 'success', text: '确认收货成功' })
+        order.orderState = 4
+      })
+    }).catch(() => {})
+  }
+  return { handlerConfirm }
+}
+// 查看物流逻辑
+const useLogistics = () => {
+  const orderLogisticsCom = ref(null)
+  const handlerLogistics = (order) => {
+    orderLogisticsCom.value.open(order)
+  }
+  return { handlerLogistics, orderLogisticsCom }
 }
 </script>
 

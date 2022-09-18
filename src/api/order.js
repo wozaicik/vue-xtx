@@ -62,5 +62,32 @@ export const findOrderList = ({ page = 1, pageSize = 10, orderState = 0 }) => {
  * @returns
  */
 export const cancelOrder = ({ orderId, cancelReason }) => {
-  return request(`/member/order/${orderId}/cancel`, 'get', { cancelReason })
+  return request(`/member/order/${orderId}/cancel`, 'put', { cancelReason })
+}
+
+/**
+ *
+ * @param {String} orderId 订单ID
+ * @returns
+ */
+export const confirmOrder = (orderId) => {
+  return request(`/member/order/${orderId}/receipt`, 'put')
+}
+
+/**
+ * 删除订单
+ * @param {String} orderId 订单ID
+ * @returns
+ */
+export const deleteOrder = (orderId) => {
+  return request('/member/order', 'delete', { ids: [orderId] })
+}
+
+/**
+ * 查询物流
+ * @param {String } order 订单id
+ * @returns
+ */
+export const logisticsOrder = (orderId) => {
+  return request(`/member/order/${orderId}/logistics`, 'get')
 }
